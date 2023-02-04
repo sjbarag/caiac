@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	"terraform-provider-caiac/caiac/datasources"
+	"terraform-provider-caiac/lib/datasources"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/path"

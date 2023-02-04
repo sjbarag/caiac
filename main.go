@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"terraform-provider-caiac/caiac"
+	"terraform-provider-caiac/lib"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )
