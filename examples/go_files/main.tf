@@ -9,7 +9,7 @@ terraform {
 provider "caiac" {}
 
 data "caiac_source_go" "main_go" {
-  filename = "/Users/sean/src/caiac/main.go"
+  filename = "main.go"
 }
 
 output "main-file" {

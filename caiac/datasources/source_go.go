@@ -3,6 +3,7 @@ package datasources
 import (
 	"context"
 	"os"
+	"path/filepath"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -10,14 +11,29 @@ import (
 )
 
 var (
-	_ datasource.DataSource = &sourceGoDataSource{}
+	_ datasource.DataSource              = &sourceGoDataSource{}
+	_ datasource.DataSourceWithConfigure = &sourceGoDataSource{}
 )
 
 func NewSourceGoDataSource() datasource.DataSource {
 	return &sourceGoDataSource{}
 }
 
-type sourceGoDataSource struct{}
+type sourceGoDataSource struct {
+	baseDir string
+}
+
+func (d *sourceGoDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+
+	dsd, ok := req.ProviderData.(*DataSourceData)
+	if !ok {
+		return
+	}
+	d.baseDir = dsd.BaseDir
+}
 
 func (d *sourceGoDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_source_go"
@@ -49,7 +65,12 @@ func (d *sourceGoDataSource) Read(ctx context.Context, req datasource.ReadReques
 		}
 	}
 
-	contents, err := os.ReadFile(state.Filename.ValueString())
+	contents, err := os.ReadFile(
+		filepath.Join(
+			d.baseDir,
+			state.Filename.ValueString(),
+		),
+	)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to read file from disk",
