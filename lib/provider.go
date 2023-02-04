@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"terraform-provider-caiac/lib/datasources"
+	"terraform-provider-caiac/lib/resources"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -91,9 +92,8 @@ func (p *caiacProvider) Configure(ctx context.Context, req provider.ConfigureReq
 		return
 	}
 
-	resp.DataSourceData = &datasources.DataSourceData{
-		BaseDir: baseDir,
-	}
+	resp.DataSourceData = &datasources.DataSourceData{BaseDir: baseDir}
+	resp.ResourceData = &resources.ResourceData{BaseDir: baseDir}
 }
 
 // DataSources defines the data sources implemented in the provider.
@@ -105,5 +105,7 @@ func (p *caiacProvider) DataSources(_ context.Context) []func() datasource.DataS
 
 // Resources defines the resources implemented in the provider.
 func (p *caiacProvider) Resources(_ context.Context) []func() resource.Resource {
-	return nil
+	return []func() resource.Resource{
+		resources.NewGoSourceResource,
+	}
 }
