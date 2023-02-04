@@ -118,6 +118,31 @@ func (r *goSourceResource) Read(ctx context.Context, req resource.ReadRequest, r
 }
 
 func (r *goSourceResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan goSourceResourceModel
+	{
+		diags := req.Plan.Get(ctx, &plan)
+		resp.Diagnostics.Append(diags...)
+	}
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	path := filepath.Join(r.baseDir, plan.Filename.ValueString())
+	if err := os.WriteFile(path, []byte(plan.Contents.ValueString()), os.ModePerm); err != nil {
+		resp.Diagnostics.AddError(
+			"Error writing file",
+			"Unable to write file to disk: "+err.Error(),
+		)
+		return
+	}
+
+	{
+		diags := resp.State.Set(ctx, plan)
+		resp.Diagnostics.Append(diags...)
+	}
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 
 func (r *goSourceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
