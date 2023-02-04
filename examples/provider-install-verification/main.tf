@@ -1,11 +1,11 @@
 terraform {
   required_providers {
-    hashicups = {
-      source = "hashicorp.com/edu/hashicups-pf"
+    caiac = {
+      source = "registry.terraform.io/sjbarag/caiac"
     }
   }
 }
 
-provider "hashicups" {}
+provider "caiac" {}
 
-data "hashicups_coffees" "example" {}
+data "caiac_source_go" "example" {}
