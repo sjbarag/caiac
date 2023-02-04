@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var (
@@ -65,12 +66,13 @@ func (d *sourceGoDataSource) Read(ctx context.Context, req datasource.ReadReques
 		}
 	}
 
-	contents, err := os.ReadFile(
-		filepath.Join(
-			d.baseDir,
-			state.Filename.ValueString(),
-		),
-	)
+	path := filepath.Join(d.baseDir, state.Filename.ValueString())
+
+	ctx = tflog.SetField(ctx, "filename", state.Filename.ValueString())
+	ctx = tflog.SetField(ctx, "path", path)
+	tflog.Debug(ctx, "Reading file")
+
+	contents, err := os.ReadFile(path)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to read file from disk",
