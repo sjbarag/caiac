@@ -12,19 +12,24 @@ import (
 )
 
 var (
-	_ datasource.DataSource              = &sourceGoDataSource{}
-	_ datasource.DataSourceWithConfigure = &sourceGoDataSource{}
+	_ datasource.DataSource              = &goSourceDataSource{}
+	_ datasource.DataSourceWithConfigure = &goSourceDataSource{}
 )
 
-func NewSourceGoDataSource() datasource.DataSource {
-	return &sourceGoDataSource{}
+func NewGoSourceDataSource() datasource.DataSource {
+	return &goSourceDataSource{}
 }
 
-type sourceGoDataSource struct {
+type goSourceDataSourceModel struct {
+	Filename types.String `tfsdk:"filename"`
+	Contents types.String `tfsdk:"contents"`
+}
+
+type goSourceDataSource struct {
 	baseDir string
 }
 
-func (d *sourceGoDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (d *goSourceDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -36,11 +41,11 @@ func (d *sourceGoDataSource) Configure(_ context.Context, req datasource.Configu
 	d.baseDir = dsd.BaseDir
 }
 
-func (d *sourceGoDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_source_go"
+func (d *goSourceDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_go_source"
 }
 
-func (d *sourceGoDataSource) Schema(_ context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *goSourceDataSource) Schema(_ context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"filename": schema.StringAttribute{
@@ -55,8 +60,8 @@ func (d *sourceGoDataSource) Schema(_ context.Context, req datasource.SchemaRequ
 	}
 }
 
-func (d *sourceGoDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var state sourceGoDataSourceModel
+func (d *goSourceDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var state goSourceDataSourceModel
 
 	{
 		diags := req.Config.Get(ctx, &state)
@@ -85,9 +90,4 @@ func (d *sourceGoDataSource) Read(ctx context.Context, req datasource.ReadReques
 
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
-}
-
-type sourceGoDataSourceModel struct {
-	Filename types.String `tfsdk:"filename"`
-	Contents types.String `tfsdk:"contents"`
 }

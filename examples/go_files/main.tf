@@ -8,10 +8,10 @@ terraform {
 
 provider "caiac" {}
 
-data "caiac_source_go" "main_go" {
+data "caiac_go_source" "main_go" {
   filename = "main.go"
 }
 
 output "main-file" {
-  value = data.caiac_source_go.main_go
+  value = data.caiac_go_source.main_go
 }
