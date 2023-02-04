@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"terraform-provider-caiac/caiac/datasources"
 )
 
 var (
@@ -29,13 +30,15 @@ func (p *caiacProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp
 	resp.Schema = schema.Schema{}
 }
 
-// Configure prepares a HashiCups API client for data sources and resources.
+// Configure would normally perform some client-specific configuration, but there's nothing to do.
 func (p *caiacProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
 }
 
 // DataSources defines the data sources implemented in the provider.
 func (p *caiacProvider) DataSources(_ context.Context) []func() datasource.DataSource {
-	return nil
+	return []func() datasource.DataSource{
+		datasources.NewSourceGoDataSource,
+	}
 }
 
 // Resources defines the resources implemented in the provider.
