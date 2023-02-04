@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var (
@@ -146,4 +147,50 @@ func (r *goSourceResource) Update(ctx context.Context, req resource.UpdateReques
 }
 
 func (r *goSourceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state goSourceResourceModel
+	{
+		diags := req.State.Get(ctx, &state)
+		resp.Diagnostics.Append(diags...)
+	}
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Remove the file
+	if err := os.Remove(state.Filename.ValueString()); err != nil {
+		resp.Diagnostics.AddError(
+			"Error removing file",
+			"Unable to delete file from disk: "+err.Error(),
+		)
+		return
+	}
+
+	// Then remove any empty directories above it in the filesystem.
+	dir := filepath.Dir(state.Filename.ValueString())
+	for dir != "/" {
+		ctx = tflog.SetField(ctx, "dir", dir)
+		tflog.Debug(ctx, "empty-dir removal loop")
+		entries, err := os.ReadDir(dir)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error searching for empty directories to remove",
+				"Unable to find empty directories to remove after file deletion: "+err.Error(),
+			)
+			return
+		}
+
+		if len(entries) > 0 {
+			break
+		}
+
+		if err := os.Remove(dir); err != nil {
+			resp.Diagnostics.AddError(
+				"Error removing empty directory",
+				"Unable to remove empty directory after file deletion: "+err.Error(),
+			)
+			return
+		}
+
+		dir = filepath.Dir(dir)
+	}
 }
