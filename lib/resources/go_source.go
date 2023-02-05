@@ -48,7 +48,19 @@ func (r *goSourceResource) Schema(ctx context.Context, req resource.SchemaReques
 				Required: true,
 			},
 			"contents": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+			},
+			"package_name": schema.StringAttribute{
 				Required: true,
+			},
+		},
+		Blocks: map[string]schema.Block{
+			"import": schema.ListNestedBlock{
+				NestedObject: ImportSpec,
+			},
+			"func": schema.ListNestedBlock{
+				NestedObject: FuncDecl,
 			},
 		},
 	}
@@ -72,7 +84,15 @@ func (r *goSourceResource) Create(ctx context.Context, req resource.CreateReques
 		)
 		return
 	}
-	if err := os.WriteFile(path, []byte(plan.Contents.ValueString()), os.ModePerm); err != nil {
+
+	contents := renderGoSource(ctx, &plan, resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	plan.Contents = types.StringValue(contents)
+
+	if err := os.WriteFile(path, []byte(contents), os.ModePerm); err != nil {
 		resp.Diagnostics.AddError(
 			"Error writing file",
 			"Unable to write file to disk: "+err.Error(),
@@ -129,7 +149,15 @@ func (r *goSourceResource) Update(ctx context.Context, req resource.UpdateReques
 	}
 
 	path := filepath.Join(r.baseDir, plan.Filename.ValueString())
-	if err := os.WriteFile(path, []byte(plan.Contents.ValueString()), os.ModePerm); err != nil {
+
+	contents := renderGoSource(ctx, &plan, resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	plan.Contents = types.StringValue(contents)
+
+	if err := os.WriteFile(path, []byte(contents), os.ModePerm); err != nil {
 		resp.Diagnostics.AddError(
 			"Error writing file",
 			"Unable to write file to disk: "+err.Error(),

@@ -14,18 +14,21 @@ data "caiac_go_source" "main_go" {
 
 resource "caiac_go_source" "foo_go" {
   filename = "./foo/foo.go"
-  contents = <<-EOT
-    package foo
-
-    import "fmt"
-
-    func main() {
-      fmt.Println("hello")
-    }
-  EOT
+  package_name = "main"
+  import {
+    path = "fmt"
+  }
 }
 
-output "main-file" {
-  value = data.caiac_go_source.main_go
+resource "caiac_go_source" "some_new_file" {
+  filename = "./some_new_file.go"
+  package_name = "main"
+  import {
+    path = "fmt"
+    name = "format"
+  }
 }
 
+output "result" {
+  value = caiac_go_source.some_new_file
+}
