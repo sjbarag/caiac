@@ -85,7 +85,7 @@ func (r *goSourceResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	contents := renderGoSource(ctx, &plan, resp.Diagnostics)
+	contents := renderGoSource(ctx, &plan, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -150,7 +150,7 @@ func (r *goSourceResource) Update(ctx context.Context, req resource.UpdateReques
 
 	path := filepath.Join(r.baseDir, plan.Filename.ValueString())
 
-	contents := renderGoSource(ctx, &plan, resp.Diagnostics)
+	contents := renderGoSource(ctx, &plan, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}

@@ -27,8 +27,26 @@ resource "caiac_go_source" "some_new_file" {
     path = "fmt"
     name = "format"
   }
+
+  func {
+    name = "foo"
+    signature {
+      param {
+        name = "s"
+        type = "string"
+      }
+      result {
+        type = "string"
+      }
+    }
+  }
+
+  func {
+    name = "main"
+    signature{}
+  }
 }
 
 output "result" {
-  value = caiac_go_source.some_new_file
+  value = caiac_go_source.some_new_file.contents
 }
