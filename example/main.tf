@@ -8,8 +8,8 @@ terraform {
 
 provider "caiac" {}
 
-resource "caiac_go_source" "some_new_file" {
-  filename = "./some_new_file.go"
+resource "caiac_go_source" "main" {
+  filename = "./main.go"
   package_name = "main"
   import {
     path = "fmt"
