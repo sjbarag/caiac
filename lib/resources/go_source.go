@@ -57,10 +57,10 @@ func (r *goSourceResource) Schema(ctx context.Context, req resource.SchemaReques
 		},
 		Blocks: map[string]schema.Block{
 			"import": schema.ListNestedBlock{
-				NestedObject: ImportSpec,
+				NestedObject: *ImportSpec,
 			},
 			"func": schema.ListNestedBlock{
-				NestedObject: FuncDecl,
+				NestedObject: *FuncDecl,
 			},
 		},
 	}
